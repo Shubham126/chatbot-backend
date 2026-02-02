@@ -3,7 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
- 
+
 // Load environment variables first
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
@@ -42,12 +42,12 @@ app.use(cors({
     origin: function (origin, callback) {
         // Allow requests with no origin (mobile apps, etc.)
         if (!origin) return callback(null, true);
-        
+
         // Allow localhost and 127.0.0.1 in any port
         if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes('file://')) {
             return callback(null, true);
         }
-        
+
         // Allow all origins for now (can be restricted later)
         return callback(null, true);
     },
@@ -61,18 +61,13 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-app.use(express.static(path.join(__dirname, 'public','frontend')));
-// Serve chatbot SDK files
-app.use('/chatbot-sdk', express.static(path.join(__dirname, '../chatbot-sdk')));
-
-// Routes
+// Backend API
 app.use('/api/auth', authRoutes);
 app.use('/api/scrape', scrapeRoutes);
 app.use('/api', seoToolsRoutes);
 
-// Serve main app for authenticated users
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public','frontend','index.html'));
+    res.json({ message: 'ChatFlow AI API is running', status: 'online' });
 });
 
 // Error handling middleware
@@ -86,16 +81,16 @@ async function startServer() {
         console.log('🚀 CHATFLOW AI - INTELLIGENT WEBSITE ANALYSIS');
         console.log(`   Version ${packageInfo.version} | ${new Date().toLocaleString()}`);
         console.log('='.repeat(70));
-        
+
         console.log('\n💻 SYSTEM INFORMATION:');
         console.log(`   🖥️  Platform: ${process.platform} (${process.arch})`);
         console.log(`   🟢 Node.js: ${process.version}`);
         console.log(`   💾 Memory: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB used`);
         console.log(`   📦 PID: ${process.pid}`);
-        
+
         // Connect to MongoDB
         await database.connect();
-        
+
         // Start server
         app.listen(PORT, () => {
             console.log('\n📡 SERVER STATUS:');
@@ -103,22 +98,22 @@ async function startServer() {
             console.log(`   📁 Frontend path: ${path.join(__dirname, '../frontend')}`);
             console.log(`   🌐 CORS enabled: All origins allowed`);
             console.log(`   📦 Environment: ${process.env.NODE_ENV || 'development'}`);
-            
 
-            
+
+
             console.log('\n🛠️  FEATURES ENABLED:');
             console.log('   ✅ Comprehensive web scraping (zero limitations)');
             console.log('   ✅ MongoDB Atlas storage');
             console.log('   ✅ Google Gemini AI integration');
             console.log('   ✅ Smart content optimization');
             console.log('   ✅ Real-time chat interface');
-            
+
             console.log('\n' + '='.repeat(70));
             console.log('🎯 READY TO PROCESS WEBSITES! Send requests to start scraping...');
             console.log('⚡ Maximum content extraction | Zero limitations | AI-powered analysis');
             console.log('='.repeat(70) + '\n');
         });
-        
+
     } catch (error) {
         console.log('\n' + '❌'.repeat(20));
         console.error('💥 STARTUP FAILED:', error.message);
